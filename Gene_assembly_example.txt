@@ -1,0 +1,124 @@
+export PATH=/home/linux/SPAdes-3.13.0-Linux/bin:$PATH
+export PATH=/home/linux/CAP3:$PATH
+export PATH=/home/linux/Converter:$PATH
+export PATH=/home/linux/snap-beta.18-linux:$PATH
+export PATH=/home/linux/freebayes/vcflib/bin:$PATH
+
+cd /home/linux/Files08/Plant27
+spades.py -1 R1.fastq -2 R2.fastq -o spades_results --trusted-contigs Reference.fa
+mkdir intermediate_results
+cp -f spades_results/contigs.fasta intermediate_results/contigs.fasta
+cp -f Reference.fa intermediate_results/reference.fa
+cd ./intermediate_results
+cat reference.fa contigs.fasta > refpluscont.fasta
+cap3 refpluscont.fasta -m 40 -p 70 -g 1 -f 2000 > out.txt
+converter.py
+cp -f res.txt new_reference.fa
+samtools faidx new_reference.fa
+snap-aligner index new_reference.fa index_new_reference
+cd ..
+snap-aligner paired intermediate_results/index_new_reference R1.fastq R2.fastq -o intermediate_results/output.sam
+cd ./intermediate_results
+samtools fixmate -m output.sam output.fm.sam
+samtools view -S -b -F 4 output.fm.sam > output.bam
+samtools sort output.bam -o output.sorted.bam
+samtools markdup output.sorted.bam output.sorted.md.bam
+samtools index output.sorted.md.bam
+freebayes -f new_reference.fa output.sorted.md.bam | vcffilter -f "QUAL > 20" > results.vcf
+bgzip -c results.vcf > results.vcf.gz
+bcftools index results.vcf.gz
+bcftools consensus -f new_reference.fa results.vcf.gz > alt_allele.fa
+samtools faidx alt_allele.fa
+snap-aligner index alt_allele.fa index_alt_allele
+cd ..
+snap-aligner paired intermediate_results/index_alt_allele R1.fastq R2.fastq -o intermediate_results/output2.sam
+cd ./intermediate_results
+samtools fixmate -m output2.sam output2.fm.sam
+samtools view -S -b -F 4 output2.fm.sam > output2.bam
+samtools sort output2.bam -o output2.sorted.bam
+samtools markdup output2.sorted.bam output2.sorted.md.bam
+samtools index output2.sorted.md.bam
+freebayes -f alt_allele.fa output2.sorted.md.bam | vcffilter -f "QUAL > 20" > results2.vcf
+bgzip -c results2.vcf > results2.vcf.gz
+bcftools index results2.vcf.gz
+bcftools consensus -f alt_allele.fa results2.vcf.gz > new_reference.fa
+samtools faidx new_reference.fa
+snap-aligner index new_reference.fa index_new_reference
+cd ..
+snap-aligner paired intermediate_results/index_new_reference R1.fastq R2.fastq -o intermediate_results/output.sam
+cd ./intermediate_results
+samtools fixmate -m output.sam output.fm.sam
+samtools view -S -b -F 4 output.fm.sam > output.bam
+samtools sort output.bam -o output.sorted.bam
+samtools markdup output.sorted.bam output.sorted.md.bam
+samtools index output.sorted.md.bam
+freebayes -f new_reference.fa output.sorted.md.bam | vcffilter -f "QUAL > 20" > results.vcf
+bgzip -c results.vcf > results.vcf.gz
+bcftools index results.vcf.gz
+bcftools consensus -f new_reference.fa results.vcf.gz > alt_allele.fa
+samtools faidx alt_allele.fa
+snap-aligner index alt_allele.fa index_alt_allele
+cd ..
+snap-aligner paired intermediate_results/index_alt_allele R1.fastq R2.fastq -o intermediate_results/output2.sam
+cd ./intermediate_results
+samtools fixmate -m output2.sam output2.fm.sam
+samtools view -S -b -F 4 output2.fm.sam > output2.bam
+samtools sort output2.bam -o output2.sorted.bam
+samtools markdup output2.sorted.bam output2.sorted.md.bam
+samtools index output2.sorted.md.bam
+freebayes -f alt_allele.fa output2.sorted.md.bam | vcffilter -f "QUAL > 20" > results2.vcf
+bgzip -c results2.vcf > results2.vcf.gz
+bcftools index results2.vcf.gz
+bcftools consensus -f alt_allele.fa results2.vcf.gz > new_reference.fa
+samtools faidx new_reference.fa
+snap-aligner index new_reference.fa index_new_reference
+cd ..
+snap-aligner paired intermediate_results/index_new_reference R1.fastq R2.fastq -o intermediate_results/output.sam
+cd ./intermediate_results
+samtools fixmate -m output.sam output.fm.sam
+samtools view -S -b -F 4 output.fm.sam > output.bam
+samtools sort output.bam -o output.sorted.bam
+samtools markdup output.sorted.bam output.sorted.md.bam
+samtools index output.sorted.md.bam
+freebayes -f new_reference.fa output.sorted.md.bam | vcffilter -f "QUAL > 20" > results.vcf
+bgzip -c results.vcf > results.vcf.gz
+bcftools index results.vcf.gz
+bcftools consensus -f new_reference.fa results.vcf.gz > alt_allele.fa
+samtools faidx alt_allele.fa
+snap-aligner index alt_allele.fa index_alt_allele
+cd ..
+snap-aligner paired intermediate_results/index_alt_allele R1.fastq R2.fastq -o intermediate_results/output2.sam
+cd ./intermediate_results
+samtools fixmate -m output2.sam output2.fm.sam
+samtools view -S -b -F 4 output2.fm.sam > output2.bam
+samtools sort output2.bam -o output2.sorted.bam
+samtools markdup output2.sorted.bam output2.sorted.md.bam
+samtools index output2.sorted.md.bam
+freebayes -f alt_allele.fa output2.sorted.md.bam | vcffilter -f "QUAL > 20" -f "AB > 0.25" > results2.vcf
+bgzip -c results2.vcf > results2.vcf.gz
+bcftools index results2.vcf.gz
+bcftools consensus -f alt_allele.fa results2.vcf.gz > new_reference.fa
+samtools faidx new_reference.fa
+snap-aligner index new_reference.fa index_new_reference
+cd ..
+snap-aligner paired intermediate_results/index_new_reference R1.fastq R2.fastq -o intermediate_results/output.sam
+cd ./intermediate_results
+samtools fixmate -m output.sam output.fm.sam
+samtools view -S -b -F 4 output.fm.sam > output.bam
+samtools sort output.bam -o output.sorted.bam
+samtools markdup output.sorted.bam output.sorted.md.bam
+samtools index output.sorted.md.bam
+freebayes -f new_reference.fa output.sorted.md.bam | vcffilter -f "QUAL > 20" -f "AB > 0.25" > results.vcf
+bgzip -c results.vcf > results.vcf.gz
+bcftools index results.vcf.gz
+bcftools consensus -f new_reference.fa results.vcf.gz > alt_allele.fa
+cat new_reference.fa alt_allele.fa > sequences.txt
+cd ..
+mkdir results
+cp -f intermediate_results/new_reference.fa results/new_reference.fa
+cp -f intermediate_results/new_reference.fa.fai results/new_reference.fa.fai
+cp -f intermediate_results/output.sorted.md.bam results/output.bam
+cp -f intermediate_results/output.sorted.md.bam.bai results/output.bam.bai
+cp -f intermediate_results/sequences.txt results/sequences.txt
+
+
